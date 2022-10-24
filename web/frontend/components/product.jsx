@@ -14,21 +14,28 @@ import { useMedia } from "@shopify/react-hooks";
 /* dayjs is used to capture and format the date a product code was created or modified */
 import dayjs from "dayjs";
 /* Markup for small screen sizes (mobile) */
-function SmallScreenCard({
+export function SmallScreenCard({
+  id,
   title,
   createdAt,
+  navigate,
   vendor,
   variants,
+  images,
 }) {
   return (
-    <UnstyledLink>
+    <UnstyledLink
+      onClick={() => {
+        navigate(`/product/${id}`);
+      }}
+    >
       <div
         style={{ padding: "0.75rem 1rem", borderBottom: "1px solid #E1E3E5" }}
       >
         <Stack>
           <Stack.Item>
             <Thumbnail
-              source={ImageMajor}
+              source={images[0]?.src || ImageMajor}
               alt="placeholder"
               color="base"
               size="small"
@@ -63,49 +70,36 @@ function SmallScreenCard({
   );
 }
 export function ProductIndex({ myProducts, loading }) {
-
   /* Check if screen is small */
   const isSmallScreen = useMedia("(max-width: 640px)");
 
+  const navigate = useNavigate();
+
   /* Map over Product for small screen */
   const smallScreenMarkup = myProducts.map((product) => (
-    <SmallScreenCard key={product.id} {...product} />
+    <SmallScreenCard key={product.id} navigate={navigate} {...product} />
   ));
 
   const rowMarkup = myProducts.map(
-    (
-      {
-        id,
-        title,
-        discountCode,
-        scans,
-        createdAt,
-        navigate,
-        vendor,
-        variants,
-        images,
-      },
-      index
-    ) => {
+    ({ id, title, createdAt, vendor, variants, images }, index) => {
       /* The form layout, created using Polaris components.*/
       return (
         <IndexTable.Row
           id={id}
           key={id}
           position={index}
+          style={{ cursor: "pointer" }}
         >
           <IndexTable.Cell>
             <Thumbnail
-              source={ImageMajor}
+              source={images[0]?.src || ImageMajor}
               alt="placeholder"
               color="base"
               size="small"
             />
           </IndexTable.Cell>
           <IndexTable.Cell>
-            <UnstyledLink>
-              {truncate(title, 25)}
-            </UnstyledLink>
+            <UnstyledLink url={`/product/${id}`}>{truncate(title, 25)}</UnstyledLink>
           </IndexTable.Cell>
           <IndexTable.Cell>
             {dayjs(createdAt).format("MMMM D, YYYY")}

@@ -12,6 +12,7 @@ import productCreator from "./helpers/product-creator.js";
 import redirectToAuth from "./helpers/redirect-to-auth.js";
 import { BillingInterval } from "./helpers/ensure-billing.js";
 import { AppInstallations } from "./app_installations.js";
+import { productService } from "./server.js";
 
 const USE_ONLINE_TOKENS = false;
 
@@ -116,11 +117,21 @@ export async function createServer(
       res,
       app.get("use-online-tokens")
     );
-    const { Product } = await import(
-      `@shopify/shopify-api/dist/rest-resources/${Shopify.Context.API_VERSION}/index.js`
+
+    const data = await productService.getProducts(session, Shopify);
+    console.log(data);
+    res.status(200).send(data);
+  });
+
+  app.get("/api/products/:id", async (req, res) => {
+    const session = await Shopify.Utils.loadCurrentSession(
+      req,
+      res,
+      app.get("use-online-tokens")
     );
-    const countData = await Product.all({ session });
-    res.status(200).send(countData);
+    const { id } = req.params;
+    const data = await productService.getProductById(session, Shopify, id);
+    res.status(200).send(data);
   });
 
   app.get("/api/products/create", async (req, res) => {

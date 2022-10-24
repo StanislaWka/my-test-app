@@ -23,8 +23,6 @@ export default function HomePage() {
     },
   });
 
-  console.log(myProducts);
-
   const loadingMarkup = isLoading ? (
     <Card sectioned>
       <Loading />
